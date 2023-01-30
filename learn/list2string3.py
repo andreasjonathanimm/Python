@@ -1,0 +1,3 @@
+words = ['There', 'are', 3, 'chairs', 'and', 2, 'lamps', 'in', 'the', 'room']
+msg = ' '.join(map(str, words))
+print(msg)
