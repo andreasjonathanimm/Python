@@ -29,10 +29,10 @@ def update(frame):
     circle.set_offsets([x, y])
     
     # Return the circle object
-    return circle,
+    return circle
 
 # Create the animation object
-anim = FuncAnimation(fig, update, frames=np.linspace(0, 2*np.pi, 360), interval=20)
+anim = FuncAnimation(fig, update, frames=np.linspace(0, 2*np.pi, 360), interval=100)
 
 # Show the animation
 plt.show()
