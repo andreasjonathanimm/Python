@@ -181,11 +181,8 @@ class Maze():
         # Ensure actions are valid
         result = []
         for action, (r, c) in candidates:
-            try:
-                if not self.walls[r][c]:
-                    result.append((action, (r, c)))
-            except IndexError:
-                continue
+            if 0 <= r < self.height and 0 <= c < self.width and not self.walls[r][c]:
+                result.append((action, (r, c)))
         return result
 
     def solve(self, algorithm):
@@ -248,58 +245,68 @@ class Maze():
     def output_image(self, filename, show_solution=True, show_explored=False):
         """Outputs an image of the maze, coloring start, goal, solution, and explored cells."""
         from PIL import Image, ImageDraw
+        cell_size = 50
+        cell_border = 2
 
-        # Colors
-        white = (255, 255, 255)
-        black = (0, 0, 0)
-        red = (255, 0, 0)
-        green = (0, 255, 0)
-        lightred = (255, 100, 100)
-        yellow = (255, 255, 0)
-
-        # Create a new image with a black background
-        img = Image.new("RGB", (self.width * 50, self.height * 50), black)
+        # Create a blank canvas
+        img = Image.new("RGBA", (self.width * cell_size, self.height * cell_size), "black")
         draw = ImageDraw.Draw(img)
 
-        # Draw grid
-        for i in range(self.width):
-            for j in range(self.height):
-                if self.walls[j][i]:
-                    draw.rectangle(((i * 50, j * 50), ((i + 1) * 50, (j + 1) * 50)), fill=white)
+        solution = self.solution[1] if self.solution is not None else None
+        for i, row in enumerate(self.walls):
+            for j, col in enumerate(row):
+                # Walls
+                if col:
+                    fill = (40, 40, 40)
 
-        # Draw explored cells
-        if show_explored:
-            for cell in self.explored:
-                draw.rectangle(((cell[1] * 50 + 15, cell[0] * 50 + 15), (cell[1] * 50 + 35, cell[0] * 50 + 35)), fill=lightred)
+                # Start
+                elif (i, j) == self.start:
+                    fill = (255, 0, 0)
 
-        # Draw solution path
-        if show_solution and self.solution is not None:
-            for cell in self.solution[1]:
-                draw.rectangle(((cell[1] * 50 + 15, cell[0] * 50 + 15), (cell[1] * 50 + 35, cell[0] * 50 + 35)), fill=yellow)
+                # Goal
+                elif (i, j) == self.goal:
+                    fill = (0, 171, 28)
 
-        # Draw start and goal
-        draw.rectangle(((self.start[1] * 50 + 15, self.start[0] * 50 + 15), (self.start[1] * 50 + 35, self.start[0] * 50 + 35)), fill=red)
-        draw.rectangle(((self.goal[1] * 50 + 15, self.goal[0] * 50 + 15), (self.goal[1] * 50 + 35, self.goal[0] * 50 + 35)), fill=green)
+                # Solution
+                elif solution is not None and show_solution and (i, j) in solution:
+                    fill = (220, 235, 113)
+
+                # Explored
+                elif solution is not None and show_explored and (i, j) in self.explored:
+                    fill = (212, 97, 85)
+
+                # Empty cell
+                else:
+                    fill = (237, 240, 252)
+
+                # Draw cell
+                draw.rectangle(
+                    ([(j * cell_size + cell_border, i * cell_size + cell_border),
+                      ((j + 1) * cell_size - cell_border, (i + 1) * cell_size - cell_border)]),
+                    fill=fill
+                )
 
         # Save the image at folder where the code is
         img.save(filename)
 
-if __name__ == "__main__":
-    # Ensure proper usage
-    if len(sys.argv) != 2:
-        sys.exit("Usage: python maze.py maze.txt; Make sure you are in the same folder as the code")
+# Ensure proper usage
+if len(sys.argv) != 2:
+    sys.exit("Usage: python maze.py maze.txt; Make sure you are in the same folder as the code")
 
-    # Get maze
-    maze = Maze(sys.argv[1])
+# Get maze
+maze = Maze(sys.argv[1])
 
-    # Maze preview
-    maze.print()
+# Maze preview
+print("Maze:")
+maze.print()
 
-    # Solve maze
-    print("Solving maze...")
-    maze.solve("astar")
-    print(f"States Explored: {maze.num_explored}")
+# Solve maze
+print("Solving...")
+maze.solve("astar")
+print("States Explored:", maze.num_explored)
+print("Solution:")
+maze.print()
 
-    # Output maze
-    maze.print()
-    maze.output_image("maze.png", show_explored=True)
+# Output maze
+maze.print()
+maze.output_image("maze.png", show_explored=True)
