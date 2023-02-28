@@ -1,14 +1,14 @@
 class Sentence():
     def evaluate(self, model):
-        """Evaluates the logical sentence"""
+        """Evaluates the logical sentence."""
         raise Exception("Nothing to evaluate")
 
     def formula(self):
-        """Returns string formula representing logical sentence"""
+        """Returns string formula representing logical sentence."""
         return ""
 
     def symbols(self):
-        """Returns set of symbols in logical sentence"""
+        """Returns a set of all symbols in the logical sentence."""
         return set()
 
     @classmethod
@@ -18,9 +18,9 @@ class Sentence():
 
     @classmethod
     def parenthesize(cls, s):
-        """Parenthesizes an expression if not already parenthesized"""
+        """Parenthesizes an expression if not already parenthesized."""
         def balanced(s):
-            """Checks if a string has balanced parentheses"""
+            """Checks if a string has balanced parentheses."""
             count = 0
             for c in s:
                 if c == "(":
@@ -29,8 +29,10 @@ class Sentence():
                     if count <= 0:
                         return False
                     count -= 1
-                return count == 0
-        if not len(s) or s.isalpha() or (s[0] == "(" and s[-1] == ")" and balanced(s[1:-1])):
+            return count == 0
+        if not len(s) or s.isalpha() or (
+            s[0] == "(" and s[-1] == ")" and balanced(s[1:-1])
+        ):
             return s
         else:
             return f"({s})"
@@ -67,7 +69,7 @@ class Not(Sentence):
 
     def __eq__(self, other):
         return isinstance(other, Not) and self.operand == other.operand
-    
+
     def __hash__(self):
         return hash(("not", hash(self.operand)))
 
@@ -93,10 +95,14 @@ class And(Sentence):
         return isinstance(other, And) and self.conjuncts == other.conjuncts
 
     def __hash__(self):
-        return hash(("and", tuple(hash(c) for c in self.conjuncts)))
+        return hash(
+            ("and", tuple(hash(conjunct) for conjunct in self.conjuncts))
+        )
 
     def __repr__(self):
-        conjunctions = ", ".join([str(c) for c in self.conjuncts])
+        conjunctions = ", ".join(
+            [str(conjunct) for conjunct in self.conjuncts]
+        )
         return f"And({conjunctions})"
 
     def add(self, conjunct):
@@ -104,13 +110,16 @@ class And(Sentence):
         self.conjuncts.append(conjunct)
 
     def evaluate(self, model):
-        return all(c.evaluate(model) for c in self.conjuncts)
+        return all(conjunct.evaluate(model) for conjunct in self.conjuncts)
 
     def formula(self):
-        return " ∧ ".join(Sentence.parenthesize(c.formula()) for c in self.conjuncts)
+        if len(self.conjuncts) == 1:
+            return self.conjuncts[0].formula()
+        return " ∧ ".join([Sentence.parenthesize(conjunct.formula())
+                        for conjunct in self.conjuncts])
 
     def symbols(self):
-        return set().union(*[c.symbols() for c in self.conjuncts])
+        return set.union(*[conjunct.symbols() for conjunct in self.conjuncts])
 
 class Or(Sentence):
     def __init__(self, *disjuncts):
@@ -122,22 +131,25 @@ class Or(Sentence):
         return isinstance(other, Or) and self.disjuncts == other.disjuncts
 
     def __hash__(self):
-        return hash(("or", tuple(hash(d) for d in self.disjuncts)))
+        return hash(
+            ("or", tuple(hash(disjunct) for disjunct in self.disjuncts))
+        )
 
     def __repr__(self):
-        disjunctions = ", ".join([str(d) for d in self.disjuncts])
-        return f"Or({disjunctions})"
+        disjuncts = ", ".join([str(disjunct) for disjunct in self.disjuncts])
+        return f"Or({disjuncts})"
 
     def evaluate(self, model):
-        return any(d.evaluate(model) for d in self.disjuncts)
+        return any(disjunct.evaluate(model) for disjunct in self.disjuncts)
 
     def formula(self):
         if len(self.disjuncts) == 1:
             return self.disjuncts[0].formula()
-        return " ∨ ".join([Sentence.parenthesize(d.formula()) for d in self.disjuncts])
+        return " ∨  ".join([Sentence.parenthesize(disjunct.formula())
+                            for disjunct in self.disjuncts])
 
     def symbols(self):
-        return set().union(*[d.symbols() for d in self.disjuncts])
+        return set.union(*[disjunct.symbols() for disjunct in self.disjuncts])
 
 class Implication(Sentence):
     def __init__(self, antecedent, consequent):
@@ -147,16 +159,19 @@ class Implication(Sentence):
         self.consequent = consequent
 
     def __eq__(self, other):
-        return isinstance(other, Implication) and self.antecedent == other.antecedent and self.consequent == other.consequent
+        return (isinstance(other, Implication)
+                and self.antecedent == other.antecedent
+                and self.consequent == other.consequent)
 
     def __hash__(self):
         return hash(("implies", hash(self.antecedent), hash(self.consequent)))
 
     def __repr__(self):
-        return f"Implication({repr(self.antecedent)}, {repr(self.consequent)})"
+        return f"Implication({self.antecedent}, {self.consequent})"
 
     def evaluate(self, model):
-        return not self.antecedent.evaluate(model) or self.consequent.evaluate(model)
+        return ((not self.antecedent.evaluate(model))
+                or self.consequent.evaluate(model))
 
     def formula(self):
         antecedent = Sentence.parenthesize(self.antecedent.formula())
@@ -174,20 +189,25 @@ class Biconditional(Sentence):
         self.right = right
 
     def __eq__(self, other):
-        return isinstance(other, Biconditional) and self.left == other.left and self.right == other.right
+        return (isinstance(other, Biconditional)
+                and self.left == other.left
+                and self.right == other.right)
 
     def __hash__(self):
         return hash(("biconditional", hash(self.left), hash(self.right)))
 
     def __repr__(self):
-        return f"Biconditional({repr(self.left)}, {repr(self.right)})"
+        return f"Biconditional({self.left}, {self.right})"
 
     def evaluate(self, model):
-        return ((self.left.evaluate(model) and self.right.evaluate(model)) or (not self.left.evaluate(model) and not self.right.evaluate(model)))
+        return ((self.left.evaluate(model)
+                and self.right.evaluate(model))
+                or (not self.left.evaluate(model)
+                    and not self.right.evaluate(model)))
 
     def formula(self):
-        left = Sentence.parenthesize(self.left.formula())
-        right = Sentence.parenthesize(self.right.formula())
+        left = Sentence.parenthesize(str(self.left))
+        right = Sentence.parenthesize(str(self.right))
         return f"{left} ↔ {right}"
 
     def symbols(self):
@@ -196,7 +216,7 @@ class Biconditional(Sentence):
 def model_check(knowledge, query):
     """Checks if knowledge base entails query."""
     def check_all(knowledge, query, symbols, model):
-        """Checks if knowledge base entails query, given current model."""
+        """Checks if knowledge base entails query, given a particular model."""
 
         # If model has an assignment for each symbol
         if not symbols:
@@ -205,7 +225,7 @@ def model_check(knowledge, query):
                 return query.evaluate(model)
             return True
         else:
-            # Choose one of the remaining unused symbol
+            # Choose one of the remaining unused symbols
             remaining = symbols.copy()
             p = remaining.pop()
 
@@ -217,9 +237,10 @@ def model_check(knowledge, query):
             model_false = model.copy()
             model_false[p] = False
 
-            # Check if knowledge base entails query in both models
-            return check_all(knowledge, query, remaining, model_true) and check_all(knowledge, query, remaining, model_false)
-        
+            # Ensure entailment holds in both models
+            return (check_all(knowledge, query, remaining, model_true) and
+                    check_all(knowledge, query, remaining, model_false))
+
     # Get all symbols in both knowledge and query
     symbols = set.union(knowledge.symbols(), query.symbols())
 

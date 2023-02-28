@@ -14,7 +14,10 @@ for person in people:
 # Each person belongs to a house.
 for person in people:
     knowledge.add(Or(
-        Symbol(f"{person}Gryffindor"), Symbol(f"{person}Hufflepuff"), Symbol(f"{person}Ravenclaw"), Symbol(f"{person}Slytherin")
+        Symbol(f"{person}Gryffindor"),
+        Symbol(f"{person}Hufflepuff"),
+        Symbol(f"{person}Ravenclaw"),
+        Symbol(f"{person}Slytherin")
     ))
 
 # Only one house per person.
@@ -39,8 +42,12 @@ knowledge.add(
     Or(Symbol("GilderoyGryffindor"), Symbol("GilderoyRavenclaw"))
 )
 
-knowledge.add(Not(Symbol("PomonaSlytherin")))
-knowledge.add(Symbol("MinervaGryffindor"))
+knowledge.add(
+    Not(Symbol("PomonaSlytherin"))
+)
+knowledge.add(
+    Symbol("MinervaGryffindor")
+)
 
 for symbol in symbols:
     if model_check(knowledge, symbol):
