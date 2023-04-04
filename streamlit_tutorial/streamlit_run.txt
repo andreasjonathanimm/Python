@@ -1,0 +1,15 @@
+First you sprinkle a few streamlit commands on top of your existing code, then you run it with streamlit run:
+streamlit run my_app.py [-- script-args]
+
+A local Streamlit server will spin up and you’ll see your app in your browser. You can then edit your code and refresh the browser to see the changes.
+
+Another way to run Streamlit is to run it as a Python module. This is useful if you want to run Streamlit from a Jupyter notebook or from a Python script.
+# Running
+python -m streamlit run my_app.py [-- script-args]
+
+# is equivalent to:
+streamlit run my_app.py [-- script-args]
+
+Tip:
+You can also pass a URL to streamlit run. This is useful if you want to run a Streamlit app that’s hosted on GitHub.
+streamlit run https://raw.githubusercontent.com/streamlit/demo-uber-nyc-pickups/master/app.py
