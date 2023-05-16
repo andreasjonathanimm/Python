@@ -1,7 +1,7 @@
 import csv
 import random
 
-from sklearn import svm
+from sklearn.svm import SVC
 from sklearn.linear_model import Perceptron
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
@@ -29,7 +29,7 @@ evidence = [row["evidence"] for row in data]
 labels = [row["label"] for row in data]
 
 X_training, X_testing, y_training, y_testing = train_test_split(
-    evidence, labels, test_size=0.4
+    evidence, labels, test_size=0.5
 )
 
 # Fit model
