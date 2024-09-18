@@ -153,19 +153,9 @@ cython_debug/
 
 # Private projects
 /projects/
-<<<<<<< HEAD
-/ai/pythonProject/object_detection_project/barcode-and-qr/images
-ai/pythonProject/object_detection_project/barcode-and-qr/images.zip
-/random/profanity_filter
-/web_scrapping
-/gdsc/data
-/hackathonBI/data
-/dataAnalysis/data
-=======
 ai/pythonProject/object_detection_project/barcode-and-qr/images.zip
 /random/profanity_filter
 /web_scrapping
 /hackathonBI
 /ai/pythonProject/object_detection_project/barcode-and-qr/images
 /gdsc/data
->>>>>>> parent of 8fbd3e4a9 (Revert "Projects")
